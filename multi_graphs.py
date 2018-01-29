@@ -15,7 +15,7 @@ prop = fm.FontProperties(fname=fpath)
 fname = os.path.split(fpath)[1]
 
 files = ["results2.csv", "results4.csv", "results6.csv", "results8.csv"]
-names = ["Model w/ ALL", "Model w/ Owner", "Model w/ Owner and Reporting Agency", "Model w/ Owner, Reporting Agency, and Year"]
+names = ["Model: Start Day, End Day, Size, Latitude, and Longitude", "Model w/ Owner", "Model w/ Owner and Reporting Agency", "Model w/ Owner, Reporting Agency, and Year"]
 colors = ["#cb4b16", "#859900", "#2aa198", "#d33682"]
 count = 0
 for file in files:
