@@ -1,19 +1,21 @@
+#make graphs of the results from the multi model tests
+
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
 from scipy import stats
-import sys
 import os
 import matplotlib.font_manager as fm
 
-
+#init plot
 fig, ax = plt.subplots(figsize=(20, 10))
 ax.set_facecolor('#002b36')
 
+#set up font
 fpath = os.path.join("Futura.ttf")
 prop = fm.FontProperties(fname=fpath)
 fname = os.path.split(fpath)[1]
 
+#define files to load in, set the colors and legend labels
 files = ["results2.csv", "results4.csv", "results6.csv", "results8.csv"]
 names = ["Model: Start Day, End Day, Size, Latitude, and Longitude", "Model w/ Owner", "Model w/ Owner and Reporting Agency", "Model w/ Owner, Reporting Agency, and Year"]
 colors = ["#cb4b16", "#859900", "#2aa198", "#d33682"]
@@ -37,7 +39,8 @@ for file in files:
     for row in data:
         sum += row[2]
         total += row[1]
-    print("total accuracy " + names[count] + ": " + str(sum/total*100))
+    print("total accuracy " + names[count] + ": " + str(sum/total*100))         # calculate and show total accruacy
+    names[count] += ". Overall Accuracy: " + str(round(sum/total*100, 2)) + "%"
 
     X = []
     for row in data:
