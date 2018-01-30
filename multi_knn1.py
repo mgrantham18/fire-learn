@@ -1,28 +1,32 @@
+#takes the top 60 most accurate models based on K and runs them all and then runs each test row on all 60 models.
+#whatever the mode prediction is is chosen
+
 import csv
 from sklearn import neighbors
 import numpy as np
 import gc
 
+#calculate the mode
 def mode(list):
-    freqlist = []
+    freqlist = []       #list of the items found
     for i in list:
         if i not in freqlist:
             freqlist.append(i)
 
-    freq = [0] * len(freqlist)
+    freq = [0] * len(freqlist)      #frequency of items found
     for i in list:
         freqindex = freqlist.index(i)
         freq[freqindex]+=1
 
     dictionary = {}
-    counter = 0
+    counter = 0             #convert two lists to dictionary
     for i in freqlist:
         dictionary[i] = freq[counter]
         counter+=1
 
-    highest = max(dictionary.values())
+    highest = max(dictionary.values())  #pick the highest
 
-    modes = ([k for k, v in dictionary.items() if v == highest])
+    modes = ([k for k, v in dictionary.items() if v == highest])    #pick the index from the frequency dictionary
     return(modes)
 
 
@@ -130,23 +134,21 @@ for row in fires:                                   #skip to the last 100000 fir
         else:
             for knn in knn_class:
                 prediction.append(knn.predict([[int(row[1]), int(row[1]), float(row[3]), float(row[4]), float(row[5])]])[0])
-        #print(prediction)
         solution = mode(prediction)
-        while(len(solution) > 1):
+        while(len(solution) > 1):           #if no mode remove one of the predictions
             del prediction[1]
             solution = mode(prediction)
 
-        if(row[0] == target_names[solution[0]]):
+        if(row[0] == target_names[solution[0]]):        #log if correct
             file = open('results2.csv', 'a')
             line = str(prediction.count(mode(prediction))) + ",1\n"
             file.write(str(line))
             file.close()
         else:
-            file = open('results2.csv', 'a')
+            file = open('results2.csv', 'a')            #log if incorrect
             line = str(prediction.count(mode(prediction))) + ",0\n"
             file.write(str(line))
             file.close()
-        #printProgressBar(counter-(len(fires)-100000), 100000, prefix = 'Testing:', suffix = 'Complete', length = 50)
     counter+=1
 print("Complete")
 fires = None

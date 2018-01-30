@@ -1,3 +1,5 @@
+#test using different amounts of models together and log accuracies
+
 import csv
 from sklearn import neighbors
 import numpy as np
@@ -45,7 +47,7 @@ with open('processed3.csv') as f:                    #yes this could be done onc
 print("Read in " + str(len(init_fires)) + " fires.")
 f.close()
 
-number_of_neighbors = [35, 10, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 60, 61, 62, 63, 65, 66, 67, 69, 70, 72, 76, 83, 84, 87, 99]
+number_of_neighbors = [35, 10]#, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 60, 61, 62, 63, 65, 66, 67, 69, 70, 72, 76, 83, 84, 87, 99]
 
 fires = []
 lefthalf = []
@@ -67,7 +69,7 @@ del lefthalf
 del righthalf
 gc.collect()
 
-limit = 1289936                                     #number to limit learning model by
+limit = len(fires)-10000                               #number to limit learning model by
 
 targets = []                                        #The causes of fires
 counter = 0
@@ -119,39 +121,45 @@ for non in number_of_neighbors:
     #print(str(non) +" Nearest Neighbors Classifier fit to data")
     knn_counter+=1
 
-counter = 0
-num_correct = 0
-print("Testing on 100000 rows...")
-for row in fires:                                   #skip to the last 100000 fires and test the model
-    if(counter > len(fires)-100000): #60034
-        if(counter%100 == 0):
-            print("Currently tested " + str(counter-(len(fires)-100000)) + " rows.")
-        prediction = []
-        if(row[2] != ""):
-            for knn in knn_class:
-                prediction.append(knn.predict([[int(row[1]), int(row[2]), float(row[3]), float(row[4]), float(row[5]), int(row[6]), int(row[7]), int(row[8])]])[0])
-        else:
-            for knn in knn_class:
-                prediction.append(knn.predict([[int(row[1]), int(row[1]), float(row[3]), float(row[4]), float(row[5]), int(row[6]), int(row[7]), int(row[8])]])[0])
-        #print(prediction)
-        solution = mode(prediction)
-        while(len(solution) > 1):
-            del prediction[1]
+num_together = 2
+while num_together <= 60:
+    counter = 0
+    num_correct = 0
+    correct = 0
+    total = 0
+    print("Testing on 10000 rows...")
+    for row in fires:                                   #skip to the last 10000 fires and test the model
+        if(counter > len(fires)-10000): #60034
+            if(counter%100 == 0):
+                print("Currently tested " + str(counter-(len(fires)-100000)) + " rows.")
+            prediction = []
+            index = 0
+            if(row[2] != ""):
+                for knn in knn_class:
+                    if knn_class.index(knn) < num_together:
+                        prediction.append(knn.predict([[int(row[1]), int(row[2]), float(row[3]), float(row[4]), float(row[5]), int(row[6]), int(row[7]), int(row[8])]])[0])
+            else:
+                for knn in knn_class:
+                    if knn_class.index(knn) < num_together:
+                        prediction.append(knn.predict([[int(row[1]), int(row[1]), float(row[3]), float(row[4]), float(row[5]), int(row[6]), int(row[7]), int(row[8])]])[0])
+            #print(prediction)
             solution = mode(prediction)
+            while(len(solution) > 1):
+                del prediction[1]
+                solution = mode(prediction)
 
-        if(row[0] == target_names[solution[0]]):
-            file = open('results8.csv', 'a')
-            line = str(prediction.count(mode(prediction))) + ",1\n"
-            file.write(str(line))
-            file.close()
-        else:
-            file = open('results8.csv', 'a')
-            line = str(prediction.count(mode(prediction))) + ",0\n"
-            file.write(str(line))
-            file.close()
-        #printProgressBar(counter-(len(fires)-100000), 100000, prefix = 'Testing:', suffix = 'Complete', length = 50)
-    counter+=1
-print("Complete")
+            if(row[0] == target_names[solution[0]]):
+                correct+=1
+                total+=1
+            else:
+                total+=1
+            counter+=1
+        file = open('results10.csv', 'a')
+        line = str(num_together) + "," + str(correct/total) + "\n"
+        file.write(str(line))
+        file.close()
+
+    print("Complete")
 fires = None
 X = None
 target = None
